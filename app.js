@@ -8,6 +8,8 @@ const path = require('path');
 
 const app = express();
 
+const errorController = require('./controllers/error');
+
 app.set('view engine', 'ejs');  //set templaing engine
 app.set('views', 'views'); //set directory path which in this case is set to 'views' by default but just in case you have to do this, you'll know how it's done
 
@@ -20,7 +22,7 @@ app.use(express.static(path.join(__dirname, 'public'))); // to garnt read access
 app.use('/admin', adminRoutes);  // in case of routes which always contain /admin at the start
 app.use(shopRoutes);  //order matters
 
-app.use('/', );
+app.use('/', errorController.get404Page);
 
 app.listen(3000);
 
