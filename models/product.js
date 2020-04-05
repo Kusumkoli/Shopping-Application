@@ -19,14 +19,17 @@ const getProductsFromFile = (cb) => {    //helper function which is used multipl
 };
 
 module.exports = class Product {
-    constructor(t) {
-        this.title = t; 
+    constructor(title, imageURL, price, description) {
+        this.title = title;
+        this.imageURL = imageURL;
+        this.price = price;
+        this.description = description; 
     }
 
     save() {
         getProductsFromFile(products => {
             products.push(this);
-            fs.writeFile(p, JSON.stringify(products), (err) => {
+            fs.writeFile(p, JSON.stringify(products), (err) => {   //covert JS object to JSON string
                 console.log(err);
             });
         });

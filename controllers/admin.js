@@ -5,14 +5,13 @@ exports.getAddProduct = (req, res, next) => {
 }
 
 exports.postAddProduct = (req, res, next) => {
-    const product = new Product(req.body.title);
-    Product.save();
+    const product = new Product(req.body.title, req.body.imageURL, req.body.price, req.body.description);
+    product.save();
     res.redirect('/');
 }
 
 exports.getProducts = (req, res, next) => {
     Product.fetchAll((products) => {
-        res.render('shop/product-list', {prods: products, pageTitle: 'Shop'});
+        res.render('admin/products', {prods: products, pageTitle: 'Admin Products'});
     });
-    //res.sendFile(path.join(__dirname, '../', 'views', 'shop.html')); //gives us the path from shop.js to shop.html and not the absolute path
 }
