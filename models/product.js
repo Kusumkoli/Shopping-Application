@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const Cart = require('./cart');
+
 const p = path.join(
     path.dirname(process.mainModule.filename), 
     'data', 
@@ -19,19 +21,43 @@ const getProductsFromFile = (cb) => {    //helper function which is used multipl
 };
 
 module.exports = class Product {
-    constructor(title, imageURL, price, description) {
+    constructor(id, title, imageURL, price, description) {
+        this.id = id;
         this.title = title;
         this.imageURL = imageURL;
         this.price = price;
         this.description = description; 
-        this.id = Math.random().toString();
     }
 
     save() {
         getProductsFromFile(products => {
-            products.push(this);
-            fs.writeFile(p, JSON.stringify(products), (err) => {   //covert JS object to JSON string
-                console.log(err);
+            if(this.id) {
+                const existingProductIndex = products.findIndex(prods => prods.id === this.id);
+                const updatedProducts = [...products];
+                updatedProducts[existingProductIndex] = this;
+                fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {   //covert JS object to JSON string
+                    console.log(err);
+                }); 
+            }
+            else {
+                this.id = Math.random().toString();
+                products.push(this);
+                fs.writeFile(p, JSON.stringify(products), (err) => {   //covert JS object to JSON string
+                    console.log(err);
+                });
+            }
+        });
+    };
+
+    static DeleteById(id) {
+        getProductsFromFile(products => {
+            const product = products.find(p => p.id === id);
+            const updatedProducts = products.filter(p => p.id !== id);
+            fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+                if(!err) {
+                    // deleting this product from the cart as well
+                    Cart.deleteProduct(id, product.price);
+                }
             });
         });
     };

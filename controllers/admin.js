@@ -1,11 +1,11 @@
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
-    res.render('admin/edit-product', {pageTitle : 'Add Product', editing: false});
+    res.render('admin/edit-product', {pageTitle : 'Add Product', edit: false});
 }
 
 exports.postAddProduct = (req, res, next) => {
-    const product = new Product(req.body.title, req.body.imageURL, req.body.price, req.body.description);
+    const product = new Product(null, req.body.title, req.body.imageURL, req.body.price, req.body.description);
     product.save();
     res.redirect('/');
 }
@@ -17,6 +17,23 @@ exports.getEditProduct = (req, res, next) => {
         res.render('admin/edit-product', {pageTitle : 'Edit Product', product: product, edit: editMode});
     });
 }
+
+exports.postEditProduct = (req, res, next) => {
+    const prodId = req.body.productId;
+    const updatedTitle = req.body.title;
+    const updatedImageURL = req.body.imageURL;
+    const updatedPrice = req.body.price;
+    const updatedDesc = req.body.description;
+    const updatedProduct = new Product(prodId, updatedTitle, updatedImageURL, updatedPrice, updatedDesc);
+    updatedProduct.save();
+    res.redirect('/admin/products');
+};
+
+exports.postDeleteProduct = (req, res, next) => {
+    const prodId = req.body.productId;
+    Product.DeleteById(prodId);
+    res.redirect('/admin/products');
+};
 
 exports.getProducts = (req, res, next) => {
     Product.fetchAll((products) => {

@@ -9,12 +9,21 @@ const path = require('path');
 const app = express();
 
 const errorController = require('./controllers/error');
+const db = require('./utils/database');
 
 app.set('view engine', 'ejs');  //set templaing engine
 app.set('views', 'views'); //set directory path which in this case is set to 'views' by default but just in case you have to do this, you'll know how it's done
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+
+db.execute('SELECT * FROM products')
+    .then(result => {
+        console.log(result[0]);
+    })
+    .catch(err => {
+        console.log(err);
+    });
 
 app.use(bodyParser.urlencoded({extended : false}));
 app.use(express.static(path.join(__dirname, 'public'))); // to garnt read access to all files in folder public
@@ -24,5 +33,5 @@ app.use(shopRoutes);  //order matters
 
 app.use('/', errorController.get404Page);
 
-app.listen(3000);
+app.listen(3010);
 
