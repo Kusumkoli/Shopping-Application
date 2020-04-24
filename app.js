@@ -22,15 +22,15 @@ app.use(bodyParser.urlencoded({extended : false}));
 app.use(express.static(path.join(__dirname, 'public'))); // to garnt read access to all files in folder public
 
 app.use(( req, res, next) => {
-    User.findById(1)
+    User.findById("5ea16c7d17e119d050212baa")
         .then(user => {
-            req.user = user;
+            req.user = new User(user.name, user.email, user.cart, user._id);
+            console.log(req.user);
             next();
         })
         .catch(err => {
             console.log(err);
         });
-    next();
 });
 
 app.use('/admin', adminRoutes);  // in case of routes which always contain /admin at the start
@@ -45,4 +45,3 @@ mongoConnect(() => {
 
 app.listen(3010);
 
-5ea16c7d17e119d050212baa
