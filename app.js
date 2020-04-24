@@ -3,8 +3,9 @@ const path = require('path');
 
 const express = require('express'); //third party package
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 // const routes = require('./routes');
-const mongoConnect = require('./utils/database').mongoConnect;
+
 
 const User = require('./models/user');
 
@@ -22,9 +23,9 @@ app.use(bodyParser.urlencoded({extended : false}));
 app.use(express.static(path.join(__dirname, 'public'))); // to garnt read access to all files in folder public
 
 app.use(( req, res, next) => {
-    User.findById("5ea16c7d17e119d050212baa")
+    User.findById("5ea2ee10b1b4d507245aa9e7")
         .then(user => {
-            req.user = new User(user.name, user.email, user.cart, user._id);
+            req.user = user;
             console.log(req.user);
             next();
         })
@@ -38,10 +39,23 @@ app.use(shopRoutes);  //order matters
 
 app.use('/', errorController.get404Page);
     
-mongoConnect(() => {
-    app.listen(3010);
-    console.log('Listening at Port: 3010');
-});
-
-app.listen(3010);
-
+mongoose.connect('mongodb+srv://kusumkoli:eJL107UOgWaBZyaq@cluster0-h9zxf.mongodb.net/shop?retryWrites=true&w=majority', {useUnifiedTopology: true, useNewUrlParser: true})
+    .then(result => {
+        User.findOne().then(user => {
+            if(!user) {
+                const user = new User({
+                    name: 'Admin',
+                    email: 'admin1234@gmail,com',
+                    cart: {
+                        items: []
+                    }
+                });
+                user.save();
+            }
+        });
+        app.listen(3010);
+        console.log('Listening at Port 3010');
+    })
+    .catch(err => {
+        console.log(err);
+    });

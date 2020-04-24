@@ -11,7 +11,7 @@ exports.postAddProduct = (req, res, next) => {
     const price = req.body.price;
     const description = req.body.description;
     const userId = req.user._id;
-    const product = new Product(title, imageURL, price, description, null, userId);
+    const product = new Product({ title: title, imageURL: imageURL, price: price, description: description, userId: userId});
     product.save()
         .then(() => {
             console.log('Added new product.');
@@ -25,7 +25,6 @@ exports.postAddProduct = (req, res, next) => {
 exports.getEditProduct = (req, res, next) => {
     const editMode = req.query.edit;
     const prodId = req.params.productId;
-    // req.user.getProducts({where: {id:prodId}})
     Product.findById(prodId)
         .then( product => {
             console.log(product);
@@ -45,8 +44,14 @@ exports.postEditProduct = (req, res, next) => {
     const updatedImageURL = req.body.imageURL;
     const updatedPrice = req.body.price;
     const updatedDesc = req.body.description;
-    const product= new Product(updatedTitle, updatedImageURL, updatedPrice, updatedDesc, prodId);
-    product.save()
+    Product.findById(prodId)
+        .then(product => {
+            product.title = updatedTitle;
+            product.imageURL = updatedImageURL;
+            product.price = updatedPrice;
+            product.description = updatedDesc;
+            return product.save();
+        })
         .then(result => {
             console.log('Updated Product');
             res.redirect('/admin/products');
@@ -58,8 +63,9 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    Product.deleteById(prodId)
+    Product.findByIdAndRemove(prodId)
         .then(() => {
+            console.log('Product Deleted');
             res.redirect('/admin/products');
         })
         .catch(err => {
@@ -68,9 +74,11 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
+    //.populate('userId')
         .then(products => {
-        res.render('admin/products', {prods: products, pageTitle: 'Admin Products'});
+            console.log(products);
+            res.render('admin/products', {prods: products, pageTitle: 'Admin Products'});
         })
         .catch(err => {
             console.log(err);
